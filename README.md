@@ -1,4 +1,4 @@
-Codes for the creation and analysis of nanostructured systems using small-angle scattering (SAS) techniques. These codes have been developed to analyze the degree of dispersion of carbon nanotubes (CNT) distributed inside a ceramic matrix using a bead chain model and Montecarlo simulation. 
+Codes (*Fortran* and *Bash*) for the creation and analysis of nanostructured systems using small-angle scattering (SAS) techniques. They have been developed as part of research for the development of advanced ceramics.
 
 ### Code table
 
@@ -12,5 +12,14 @@ Codes for the creation and analysis of nanostructured systems using small-angle 
 | `Maquillador2021Cadenas.f95` |                  | Fortran95             |
 | `grIq.f90`                   | `grIq.in`        | Fortran90             |
 | `R_ext_giro.f90`             |                  | Fortran90             |
+
+
+## About us
+These codes have been developed to analyze the degree of dispersion of carbon nanotubes (CNT) distributed inside a ceramic matrix by small-angle scattering (SAS) analyses using a bead chain model and Montecarlo simulation. 
+
+
+Group website: [Grupo FQM 393: PROPIEDADES MECÁNICAS, PROCESADO Y MODELIZACIÓN DE CERÁMICAS AVANZADAS, Universidad de Sevilla](https://grupo.us.es/fqm393/)
+
+Paper: *Under revision*
 
 
