@@ -1,0 +1,3 @@
+CadenaProle.dat		!Nombre del archivo que contiene la cadena modelo (.dat) formato OVITO
+750.0d0				!Arista de la caja total dentro de la cual se generan los CM de las cadenas
+500					!Numero de cadenas total del sistema

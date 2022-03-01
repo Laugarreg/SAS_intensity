@@ -1,0 +1,7 @@
+Conf_0_maq.dat		!Fichero de configuración
+0.5			!Radio esferas
+0.08			!dr
+0.0010d0		!qmin
+25.0d0			!qmax
+1e-4			!dq
+

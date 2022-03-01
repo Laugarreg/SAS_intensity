@@ -1,0 +1,7 @@
+SistCadenasHomogeneas_v3.dat		!Fichero con la configuración inicial de las cadenas
+20			!Numero de esferas en cada cadena
+1			!Numero de centros atractores
+10000			!Numero de iteraciones maximas para relajar el sistema. 
+0.1			!Tamanio del salto aleatorio. Como R=0.5, pueeees.... dr=0.1?
+0.5			!Radio de las esferas
+100			!Intervalo de iteraciones para grabar la configuracion

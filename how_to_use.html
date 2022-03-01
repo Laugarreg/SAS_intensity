@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>how_to_use</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="agregados-de-cnt">Agregados de CNT</h1>
+<p>Descripción del proceso de creación y análisis de sistemas de CNT que presentan distintos grados de agregación en el interior de un medio homogéneo.</p>
+<p><img src="https://i.ibb.co/F56rJ5F/figura-markdown.png" alt="Sistemas de cadenas con distintos grados de dispersión generados mediante esta metodología "></p>
+<h2 id="índice">Índice</h2>
+<ol>
+<li><a href="#id-section1">Construcción de los sistemas</a><br>
+1.1. <a href="#id-section1-1">Cadena prole</a><br>
+1.2. <a href="#id-section1-2">Cadenas homogéneas</a><br>
+1.3. <a href="#id-section1-3">Ordenador</a><br>
+1.4. <a href="#id-section1-4">Configuración de equilibrio</a><br>
+1.5. <a href="#id-section1-5">TakeConf</a></li>
+<li><a href="#id-section2">Post-procesado y análisis</a><br>
+2.1. <a href="#id-section2-1">Maquillador</a><br>
+2.2. <a href="#id-section2-2">Función de correlación de pares e intensidad de scattering </a><br>
+2.3. <a href="#id-section2-3">Radio externo y radio de giro </a></li>
+</ol>
+<div id="id-section1">
+<h2 id="construcción-de-los-sistemas">Construcción de los sistemas</h2>
+<div id="id-section1-1">
+<h3 id="cadena-prole">Cadena prole</h3>
+<p>El código <code>CadenaProle.f90</code> genera una cadena aislada mediante concatenación de esferas en condición de contacto duro. Durante el proceso de creación de la cadena, las esferas se concatenan sucesivamente, comprobando que no existe solapamiento entre ellas antes de aceptar cada nueva esfera. Los parámetros que pueden ajustarse para la generación de la cadena son:</p>
+<ul>
+<li><strong>nPartCadena</strong>: Número de esferas que forman la cadena (<em>línea 40</em>).</li>
+<li><strong>theta</strong>: Ángulo para colocar la siguiente esfera en el plano XY (<em>línea 76</em>).</li>
+<li><strong>phi</strong>: Ángulo para colocar la siguiente esfera respecto al eje Z (<em>línea 78</em>).</li>
+</ul>
+<p>El parámetro <strong>nPartCadena</strong> limita la longitud de la cadena, mientras que <strong>theta</strong> y <strong>phi</strong> definen la curvatura. Por defecto, estos parámetros toman los valores <strong>nPartCadena = 1000</strong>, <strong>theta = pi/4</strong> y <strong>phi = pi/4</strong>.</p>
+<pre class=" language-fortran"><code class="prism  language-fortran">nPartCadena<span class="token operator">=</span><span class="token number">1000</span> <span class="token comment">!Numero de esferas para cada cadena</span>
+
+...
+
+theta<span class="token operator">=</span>theta<span class="token operator">*</span>pi<span class="token operator">/</span><span class="token number">4</span>	<span class="token comment">!Angulo plano XY</span>
+phi<span class="token operator">=</span>phi<span class="token operator">*</span>pi<span class="token operator">/</span><span class="token number">4</span>		<span class="token comment">!Angulo eje Z</span>
+</code></pre>
+<p>Si se fijan los valores <strong>theta = 0</strong> y <strong>phi = 0</strong> se genera una cadena rígida.</p>
+<p>Los resultados se almacenan en el fichero <code> CadenaProle.dat</code>.</p>
+<div id="id-section1-2">
+<h3 id="cadenas-homogéneas">Cadenas homogéneas</h3>
+<p>El código <code>CadenasHomogeneas_v3.f90</code> genera una distribución aleatoria y uniforme de cadenas en una caja de simulación cúbica. Los parámetros de entrada para generar el sistema son:</p>
+<ul>
+<li><strong>Nombre_fichero.dat</strong>: Nombre del fichero que contiene los datos de la cadena que se va a utilizar como modelo de los CNT. Este archivo debe contener las posiciones de las esferas en formato <em>OVITO</em>: a) la primera línea del archivo es un número entero que coincide con el número de esferas que forma la cadena; b) la segunda línea contiene una descripción breve del sistema (línea de comentarios); c) las siguientes líneas contienen (por filas) el índice de la esfera, las coordenadas <em>(x,y,z)</em> y el radio.</li>
+<li><strong>Lcaja</strong>: Tamaño de la arista de la caja de simulación cúbica.</li>
+<li><strong>nCad</strong>: Número de cadenas que se colocan en la caja de simulación.</li>
+</ul>
+<p>Estos parámetros se leen automáticamente del fichero <code>Parametros.inp</code> al ejecutar el código. Por defecto, toman los valores:</p>
+<pre class=" language-txt"><code class="prism  language-txt">CadenaProle.dat		!Nombre del archivo que contiene la cadena modelo (.dat) formato OVITO
+750.0d0			!Arista de la caja total dentro de la cual se generan los CM de las cadenas
+500			!Numero de cadenas total del sistema
+</code></pre>
+<p>El algoritmo construye una caja de simulación cúbica de arista <strong>Lcaja</strong> y genera un total de <strong>nCad</strong> puntos aleatorios distribuidos de manera uniforme en su interior. Estos puntos aleatorios representan la posición de los centros de masa de las cadenas que modelan los CNT. Además, cada cadena se gira aleatoriamente antes de añadirse al sistema. Cuando todas las cadenas se han colocado, se reajusta la posición de todas las esferas del sistema aplicando condiciones de contorno periódicas (PBC).</p>
+<p>La configuración de las cadenas se guarda en formato <em>OVITO</em> en el fichero <code>SistCadenasHomogeneas_v3.dat</code>.</p>
+<div id="id-section1-3">
+<h3 id="ordenador">Ordenador</h3>
+<p>El algoritmo <code>Ordenador_v0.97.f90</code> realiza un proceso de Monte Carlo en el que las cadenas se agregan progresivamente en torno a distintos centros de atracción para dar lugar a la formación de agregados. Los parámetros  de entrada son:</p>
+<ul>
+<li><strong>Nombre_fichero.dat</strong>: Nombre del fichero que contiene los datos de la configuración inicial del sistema. Este archivo debe contener las posiciones de las esferas en formato <em>OVITO</em>.</li>
+<li><strong>NEsf_Cad</strong>: Número de esferas que compone cada cadena.</li>
+<li><strong>Ncentros</strong>:  Número de centros atractores generados para formar los agregados de cadenas.</li>
+<li><strong>Niter</strong>: Número de iteraciones máximas para relajar el sistema.</li>
+<li><strong>dr</strong>: Tamaño del salto aleatorio que se desplazan las cadenas en cada iteración.</li>
+<li><strong>r0</strong>: Radio de las esferas.</li>
+<li><strong>NPelicula</strong>: Intervalo de iteraciones para grabar la configuración del sistema.</li>
+</ul>
+<p>Estos parámetros se leen automáticamente del fichero <code>ordenador.in</code> al ejecutar el código. Por defecto, toman los valores:</p>
+<pre class=" language-txt"><code class="prism  language-txt">SistCadenasHomogeneas_v3.dat	!Fichero con la configuración inicial de las cadenas
+20				!Numero de esferas en cada cadena
+1				!Numero de centros atractores
+10000				!Numero de iteraciones maximas para relajar el sistema. 
+0.1				!Tamanio del salto aleatorio. Como R=0.5, pueeees.... dr=0.1?
+0.5				!Radio de las esferas
+100				!Intervalo de iteraciones para grabar la configuracion
+</code></pre>
+<p>Tras cargar la configuración inicial, el algoritmo genera <strong>Ncentros</strong> puntos aleatorios en el interior de la caja de simulación que actúan como centros atractores y calcula, para cada cadena del sistema, cuál es su centro atractor más cercano en la configuración inicial. Además, calcula la energía inicial del sistema, definida como la suma de las distancias de los centros de masa a sus respectivos centros de atracción. En cada iteración, los centros de masas de las cadenas se desplazan aleatoriamente una distancia <strong>dr</strong>. El movimiento sólo se acepta si el centro de masa se acerca a su correspondiente centro atractor. Este proceso se repite hasta completar las <strong>Niter</strong> iteraciones, calculando en cada una de ellas las energía del sistema.</p>
+<p>Al terminar el proceso de agregación se generan los ficheros:</p>
+<ul>
+<li><strong>Registro.out</strong>: Contiene la información de los parámetros empleados en la simulación y una lista que enumera el centro atractor al que se acerca cada cadena.</li>
+<li><strong>CM_cadenas.dat</strong>: Contiene las coordenadas de los centros de masa de las cadenas en la configuración inicial, en formato <em>OVITO</em>.</li>
+<li><strong>Centros.dat</strong>: Contiene las coordenadas de los centros atractores, en formato <em>OVITO</em>.</li>
+<li><strong>Registro_cad_virtual.dat</strong>: Contiene las coordenadas de las esferas en la configuración inicial, pero eliminando las condiciones de contorno periódicas que se aplican al finalizar el algoritmo <code>CadenasHomogeneas_v3.f90</code>, de forma que las cadenas en la frontera de la caja de simulación no aparecen cortadas. Este formato es útil para visualizar el sistema con mayor claridad.</li>
+<li><strong>Energia.dat</strong>: Contiene el valor de la energía del sistema en cada iteración del proceso de Monte Carlo.</li>
+<li><strong>Peli.dat</strong>: Contiene la configuración del sistema cada <strong>NPelicula</strong> iteraciones, en formato <em>OVITO</em>.</li>
+</ul>
+<div id="id-section1-4">
+<h3 id="configuración-de-equilibrio">Configuración de equilibrio</h3>
+<p>El algoritmo <code>Nstep_Max.f95</code>  toma como entrada el fichero <code>Energia.dat</code> para calcular la iteración de Monte Carlo en la que se alcanza la configuración de equilibrio. Esta se define como la configuración en la que la energía varía menos de un 1% respecto a la configuración anterior. El resultado se almacena en el fichero <code> EnergiaNstepmax.dat</code>.</p>
+<p>Dado que la configuración del sistema a lo largo del proceso de agregación se almacena cada <strong>NPelicula</strong> iteraciones, se elige como configuración de máxima agregación aquella que aparece en el fichero <strong>Peli.dat</strong> y que es superior a la iteración definida en <code> EnergiaNstepmax.dat</code>.</p>
+<div id="id-section1-5">
+<h3 id="takeconf">TakeConf</h3>
+<p>El fichero <code>TakeConf.sh</code> permite extraer una configuración de la película generada en el proceso de agregación. Para ello, usa como parámetros de entrada:</p>
+<ul>
+<li><strong>Configuración</strong>: Número de la configuración que quiere extraerse. Dado que las configuraciones se almacenan cada <strong>NPelicula</strong> iteraciones, elegir la configuración <em>N</em> implica seleccionar la iteración de Monte Carlo <em>Iter = N x NPelicula</em>.</li>
+<li><strong>Esferas_conf</strong>: Número de esferas que conforma cada configuración.</li>
+<li><strong>File</strong>: Nombre del fichero que almacena las configuraciones durante el proceso de agregación.</li>
+</ul>
+<p>Por defecto, estos parámetros toman los valores <strong>Configuración=10</strong>, <strong>Esferas_conf=500000</strong> y <strong>File=Peli.dat</strong>:</p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token shebang important">#!/bin/bash</span>
+<span class="token comment"># ----------------------------------</span>
+<span class="token comment"># Sacar una configuracion de la Pelicula de Ovito</span>
+<span class="token comment"># ----------------------------------</span>
+
+<span class="token comment"># Configuracion y caracteristicas del sistema</span>
+Configuracion<span class="token operator">=</span>10
+Esferas_conf<span class="token operator">=</span>500000
+File<span class="token operator">=</span>Peli.dat
+
+<span class="token comment"># Eleccion de lineas inicial y final</span>
+Start_line<span class="token operator">=</span>$<span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token variable">$Configuracion</span><span class="token punctuation">)</span>*<span class="token punctuation">(</span><span class="token variable">$Esferas_conf</span>+2<span class="token punctuation">)</span>+1<span class="token punctuation">]</span>
+End_line<span class="token operator">=</span>$<span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token variable">$Configuracion</span>+1<span class="token punctuation">)</span>*<span class="token punctuation">(</span><span class="token variable">$Esferas_conf</span>+2<span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+<span class="token comment"># Creacion de la configuracion en fichero</span>
+<span class="token function">sed</span> -n -e <span class="token string">"<span class="token variable">$Start_line</span>,<span class="token variable">$End_line</span> p"</span> <span class="token variable">$File</span> <span class="token operator">&gt;&gt;</span> Conf_<span class="token variable">$Configuracion</span>.dat 
+</code></pre>
+<p>La configuración aislada se almacena en el fichero <code>Conf_n.dat</code>, donde <em>n</em> es el número de la configuración.</p>
+<div id="id-section2">
+<h2 id="post-procesado-y-análisis">Post-procesado y análisis</h2>
+<div id="id-section2-1">
+<h3 id="maquillador">Maquillador</h3>
+<p>El algoritmo <code>Maquillador2021Cadenas.f95</code> elimina las partículas que han quedado solapando en el proceso de agregación de una configuración. Al ejecutar el código, pide que se introduzca por teclado el nombre del fichero  (incluyendo la extensión) que contiene la configuración a maquillar, que se encuentra almacenado en formato <em>OVITO</em>.</p>
+<pre><code>Dame el nombre del archivo (formato ovito):
+&gt;&gt; Conf_n.dat
+</code></pre>
+<p>Al finalizar, se muestra por pantalla el número de esferas antes y después del proceso de maquillado. La nueva configuración se almacena en el fichero <code>Maquillado.dat</code>.</p>
+<div id="id-section2-2">
+<h3 id="función-de-correlación-de-pares-e-intensidad-de-scattering">Función de correlación de pares e intensidad de scattering</h3>
+<p>El algoritmo <code>grIq.f90</code> calcula la función de correlación de pares y la curva de intesidad de scattering de una configuración de esferas a partir de sus coordenadas. Para ello, utiliza como entrada los parámetros:</p>
+<ul>
+<li><strong>Nombre_fichero.dat</strong>: Nombre del fichero que contiene la configuración, en formato <em>OVITO</em>.</li>
+<li><strong>r0</strong>: Radio de las esferas que forman el sistema.</li>
+<li><strong>dr</strong>: Intervalo <em>‘‘infinitesimal’’</em> para discretizar la variable radial en el cálculo de la función de correlación de pares.</li>
+<li><strong>qmin</strong>: Mínimo valor de <em>q</em> para el cálculo de la intensidad de scattering.</li>
+<li><strong>qmax</strong>: Máximo valor de <em>q</em> para el cálculo de la intensidad de scattering.</li>
+<li><strong>dq</strong>: Intervalo <em>‘‘infinitesimal’’</em> para discretizar la variable <em>q</em>.</li>
+</ul>
+<p>Estos se leen del fichero <code>grIq.in</code>, cuyo contenido por defecto es:</p>
+<pre><code>Conf_0_maq.dat		!Fichero de configuración
+0.5			!Radio esferas
+0.08			!dr
+0.0010d0		!qmin
+25.0d0			!qmax
+1e-4			!dq
+</code></pre>
+<p>La función de correlación de pares se obtiene computando el número de parejas de partículas que se encuentran a cierta distancia <em>r</em>. Este valor se normaliza según el volumen de una corteza esférica de radio <em>r</em> y espesor <em>dr</em> y la densidad numérica. Posteriormente, la intensidad de scattering se calcula como el producto del factor de forma (en este caso, el de una esfera de radio <strong>r0</strong>) y el factor de estrucutra, realcionado con <em>g( r )</em> mediante una expresión intergal (<a href="https://www.sciencedirect.com/science/article/pii/0022309395000461">Hasmy et al., 1995</a>).</p>
+<p>El código genera los ficheros:</p>
+<ul>
+<li><strong>grIq.out</strong>:  Contiene un registro de los parámetros introducidos como entrada y calculados durante la simulación.</li>
+<li><strong>gr.dat</strong>: Contiene los resultados de la función de correlación de pares. Por columnas: <em>r</em> y <em>g( r )</em>.</li>
+<li><strong>Iq.dat</strong>: Contiene los resultados de la curva de intensidad de scattering. Por columnas: vector de scattering, <em>q</em>, factor de forma, <em>P( q )</em>, factor de estructura, <em>S( q )</em>, e intensidad de scattering, <em>I( q )</em>.</li>
+</ul>
+<div id="id-section2-3">
+<h3 id="radio-externo-y-radio-de-giro">Radio externo y radio de giro</h3>
+<p>El algoritmo <code>R_ext_giro.f90</code> calcula el radio externo y el radio de giro de los aglomerados de cadenas obtenidos tras el proceso de agregación llevado a cabo por el algoritmo <a href="#id-section1-3">Ordenador</a>. El código lee como input los datos almacenados en el fichero <code>Centros.dat</code> generado (<em>ver</em>  <a href="#id-section1-3">Ordenador</a>). Además, pide que se introduzca por teclado el nombre del fichero (incluyendo la extensión) que contiene la configuración final cen formato <em>OVITO</em>.</p>
+<pre><code>Dame el nombre del archivo (formato ovito):
+&gt;&gt; Conf_n.dat
+</code></pre>
+<p>Como resultado se obtiene el radio externo y el radio de giro de cada agregado, así como el promedio de ambos valores. Todos estos valores se almacenan en el fichero <code>R_exterior_giro.dat</code>. Además, se genera el archivo <code>CM_ovillos.dat</code>, que contiene las coordenadas de los centros de masas de los agregados en formato <em>OVITO</em>; y el archivo <code>Reposicionamiento.dat</code>, que reescribe las coordenadas de todas las esferas del sistema eliminando la condición de condiciones de contorno periódicas, de forma que los agregados no aparezcan cortados. Este formato es útil para visualizar el sistema con mayor claridad.</p>
+</div></div></div></div></div></div></div></div></div></div></div>
+</body>
+
+</html>
