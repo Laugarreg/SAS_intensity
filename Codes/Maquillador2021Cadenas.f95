@@ -1,5 +1,5 @@
 ! programa para eliminar del sistema
-! las esferas que solapan debido al algoritmo de construcción
+! las esferas que solapan debido al algoritmo de construcciÃ³n
 ! 
 
 
