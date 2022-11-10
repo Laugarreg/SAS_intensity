@@ -20,6 +20,7 @@ These codes have been developed to analyze the degree of dispersion of carbon na
 
 Group website: [Grupo FQM 393: PROPIEDADES MECÁNICAS, PROCESADO Y MODELIZACIÓN DE CERÁMICAS AVANZADAS, Universidad de Sevilla](https://grupo.us.es/fqm393/)
 
-Paper: https://www.sciencedirect.com/science/article/pii/S0921452622007359
+Paper: [The dispersion of carbon nanotubes in composite materials studied by computer simulation of Small Angle Scattering](https://www.sciencedirect.com/science/article/pii/S0921452622007359)
+
 
 
