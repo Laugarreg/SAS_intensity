@@ -20,6 +20,6 @@ These codes have been developed to analyze the degree of dispersion of carbon na
 
 Group website: [Grupo FQM 393: PROPIEDADES MECÁNICAS, PROCESADO Y MODELIZACIÓN DE CERÁMICAS AVANZADAS, Universidad de Sevilla](https://grupo.us.es/fqm393/)
 
-Paper: *Under revision*
+Paper: https://www.sciencedirect.com/science/article/pii/S0921452622007359
 
 
